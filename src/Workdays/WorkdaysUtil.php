@@ -27,6 +27,9 @@ class WorkdaysUtil
     /** @const int Limit for the getNextHoliday function */
     const MAX_YEARS_WITH_NO_HOLIDAY = 100;
 
+    /** @var array<string, array<Holiday>> */
+    private $holidays = [];
+
     public function __construct($countryCode = 'CZE')
     {
         $this->setCountry($countryCode);
@@ -199,12 +202,17 @@ class WorkdaysUtil
      */
     private function getHolidaysByYear($year, $countryCode = null)
     {
-        if ($countryCode === null) {
-            return $this->holidaysProvider->getHolidaysByYear($year);
-        } else {
-            $holidaysProvider = $this->getHolidaysProviderByCountryCode($countryCode);
-            return $holidaysProvider->getHolidaysByYear($year);
-        }
+		$key = "$year.$countryCode";
+		if (isset($this->holidays[$key]) === false) {
+            if ($countryCode === null) {
+	            $this->holidays[$key] = $this->holidaysProvider->getHolidaysByYear($year);
+            } else {
+                $holidaysProvider = $this->getHolidaysProviderByCountryCode($countryCode);
+	            $this->holidays[$key] = $holidaysProvider->getHolidaysByYear($year);
+            }
+		}
+
+		return $this->holidays[$key];
     }
 
     /**

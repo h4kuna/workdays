@@ -1,3 +1,5 @@
+# Workdays
+
 [![Downloads this Month](https://img.shields.io/packagist/dm/h4kuna/workdays.svg)](https://packagist.org/packages/h4kuna/workdays)
 [![Latest Stable Version](https://poser.pugx.org/h4kuna/workdays/v/stable?format=flat)](https://packagist.org/packages/h4kuna/workdays)
 [![Coverage Status](https://coveralls.io/repos/github/h4kuna/workdays/badge.svg?branch=main)](https://coveralls.io/github/h4kuna/workdays?branch=main)
@@ -6,8 +8,17 @@
 
 Part of the [h4kuna PHP libraries](https://github.com/h4kuna/library), see the overview of all packages.
 
-Usage
--------------
+Public holidays and workdays for the Czech Republic and Slovakia.
+
+## Installation
+
+Requires PHP 8.4 or newer.
+
+```sh
+composer require h4kuna/workdays
+```
+
+## Usage
 
 ```php
 use h4kuna\Workdays;
@@ -32,8 +43,9 @@ echo $nextHoliday->date->format('Y-m-d H:i:s') . PHP_EOL;
 echo $workdays->nextWorkday($datetime)->format('Y-m-d H:i:s') . PHP_EOL;
 // 2016-01-05 12:46:28
 
-$workdays->moveWorkdays($datetime, 7);
-echo $datetime->format('Y-m-d H:i:s') . PHP_EOL;
+// returns a new object, $datetime is not modified
+$moved = $workdays->moveWorkdays($datetime, 7);
+echo $moved->format('Y-m-d H:i:s') . PHP_EOL;
 // 2016-01-13 12:46:28
 
 
@@ -55,30 +67,34 @@ echo $nextHoliday->date->format('Y-m-d H:i:s') . PHP_EOL;
 echo $workdays->nextWorkday($datetime)->format('Y-m-d H:i:s') . PHP_EOL;
 // 2016-01-05 12:43:28
 
-$workdays->moveWorkdays($datetime, 7);
-echo $datetime->format('Y-m-d H:i:s') . PHP_EOL;
+$moved = $workdays->moveWorkdays($datetime, 7);
+echo $moved->format('Y-m-d H:i:s') . PHP_EOL;
 // 2016-01-14 12:43:28
-
 ```
 
-### Custom Holiday Providers
+### Custom holiday providers
+
+Extend `BaseProvider` and return the holidays of the given year. The list must not be empty and all dates must be in the requested year.
 
 ```php
 use h4kuna\Workdays;
+use h4kuna\Workdays\HolidaysProvider\BaseProvider;
+use h4kuna\Workdays\HolidaysProvider\Holiday;
 
-$builder = Workdays\Factory::create();
-
-class CustomHolidaysProvider implements Workdays\HolidaysProvider\BaseProvider
+class CustomHolidaysProvider extends BaseProvider
 {
-    protected function holidaysInYear(int $year): array {
+    protected function holidaysInYear(int $year): array
+    {
         return [
-            // fill dates        
+            new Holiday(new DateTimeImmutable($year . '-01-01'), 'New Year\'s Day'),
+            // ...
         ];
     }
 }
 
+$builder = Workdays\Factory::create();
 $builder->addProvider('myProvider', new CustomHolidaysProvider());
 
-// initialize workdays util without country code; the correct holidays provider is not yet available
+// get Workdays with your provider by the name used in addProvider()
 $workdays = $builder->get('myProvider');
 ```

@@ -1,6 +1,6 @@
 [![Downloads this Month](https://img.shields.io/packagist/dm/h4kuna/workdays.svg)](https://packagist.org/packages/h4kuna/workdays)
 [![Latest Stable Version](https://poser.pugx.org/h4kuna/workdays/v/stable?format=flat)](https://packagist.org/packages/h4kuna/workdays)
-[![Coverage Status](https://coveralls.io/repos/github/h4kuna/workdays/badge.svg?branch=master)](https://coveralls.io/github/h4kuna/workdays?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/h4kuna/workdays/badge.svg?branch=main)](https://coveralls.io/github/h4kuna/workdays?branch=main)
 [![Total Downloads](https://poser.pugx.org/h4kuna/workdays/downloads?format=flat)](https://packagist.org/packages/h4kuna/workdays)
 [![License](https://poser.pugx.org/h4kuna/workdays/license?format=flat)](https://packagist.org/packages/h4kuna/workdays)
 

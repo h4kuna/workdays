@@ -1,14 +1,23 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays\Tests\Unit;
 
 use DateTime;
 use DateTimeImmutable;
-use h4kuna;
+use h4kuna\DataType\Exceptions\LogicException;
+use h4kuna\Workdays\Exceptions\InvalidStateException;
 use h4kuna\Workdays\Factory;
+use h4kuna\Workdays\HolidaysProvider\BaseProvider;
+use h4kuna\Workdays\HolidaysProvider\Cze;
+use h4kuna\Workdays\HolidaysProvider\Holiday;
+use h4kuna\Workdays\HolidaysProvider\Svk;
+use h4kuna\Workdays\Tests\Fixtures\PoorCountryWithFewHolidays;
+use h4kuna\Workdays\Tests\Fixtures\PoorCountryWithNoHolidays;
 use h4kuna\Workdays\Workdays;
 use Tester\Assert;
 use Tester\TestCase;
+use function date;
+use function sprintf;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -18,59 +27,67 @@ require __DIR__ . '/../bootstrap.php';
 final class WorkdaysTest extends TestCase
 {
 
-	/**
-	 * @throws h4kuna\DataType\Exceptions\InvalidStateException
-	 */
 	public function testUnknownSourceThrowsException(): void
 	{
-		Factory::create()->get('Foo');
+		Assert::exception(static fn () => Factory::create()->get('Foo'), LogicException::class);
 	}
-
 
 	/**
 	 * @dataProvider provideIsHolidayArgs
 	 */
-	public function testIsHoliday(string $countryCode, string $date, bool $isHoliday): void
+	public function testIsHoliday(
+		string $countryCode,
+		string $date,
+		bool $isHoliday,
+	): void
 	{
 		$util = Factory::create()->get($countryCode);
 		Assert::same($isHoliday, $util->isHoliday(new DateTime($date)));
 	}
 
-
 	/**
 	 * @dataProvider provideIsWorkdayArgs
 	 */
-	public function testIsWorkDay(string $countryCode, string $dateString, bool $isWorkday): void
+	public function testIsWorkDay(
+		string $countryCode,
+		string $dateString,
+		bool $isWorkday,
+	): void
 	{
 		$util = Factory::create()->get($countryCode);
 		Assert::same($isWorkday, $util->isWorkday(new DateTime($dateString)));
 	}
 
-
 	/**
 	 * @dataProvider provideGetNextWorkdayArgs
 	 */
-	public function testGetNextWorkday(string $countryCode, string $dateString, string $nextWorkdayString): void
+	public function testGetNextWorkday(
+		string $countryCode,
+		string $dateString,
+		string $nextWorkdayString,
+	): void
 	{
 		$util = Factory::create()->get($countryCode);
 		$nextWorkday = $util->nextWorkday(new DateTime($dateString));
 		Assert::equal(new DateTime($nextWorkdayString), $nextWorkday);
 	}
 
-
 	/**
 	 * @dataProvider provideGetNextHolidayArgs
 	 */
-	public function testGetNextHoliday(string $countryCode, string $dateString, string $nextHolidayDateString): void
+	public function testGetNextHoliday(
+		string $countryCode,
+		string $dateString,
+		string $nextHolidayDateString,
+	): void
 	{
 		$builder = Factory::create();
-		$builder->add('PoorCountryWithFewHolidays', new Workdays(new h4kuna\Workdays\Tests\Fixtures\PoorCountryWithFewHolidays()));
+		$builder->add('PoorCountryWithFewHolidays', new Workdays(new PoorCountryWithFewHolidays()));
 		$util = $builder->get($countryCode);
 
 		$nextHoliday = $util->nextHoliday(new DateTime($dateString));
 		Assert::equal(new DateTimeImmutable($nextHolidayDateString), $nextHoliday->date);
 	}
-
 
 	/**
 	 * @return array<mixed>
@@ -84,7 +101,6 @@ final class WorkdaysTest extends TestCase
 		];
 	}
 
-
 	/**
 	 * @dataProvider provideVacation
 	 */
@@ -92,11 +108,11 @@ final class WorkdaysTest extends TestCase
 		string $dateString,
 		bool $isHoliday,
 		bool $isVacation,
-		DateTimeImmutable $nextHoliday
+		DateTimeImmutable $nextHoliday,
 	): void
 	{
 		$builder = Factory::create();
-		$builder->add('test', new Workdays(new h4kuna\Workdays\Tests\Fixtures\PoorCountryWithFewHolidays()));
+		$builder->add('test', new Workdays(new PoorCountryWithFewHolidays()));
 		$util = $builder->get('test');
 
 		$date = new DateTimeImmutable($dateString);
@@ -105,10 +121,9 @@ final class WorkdaysTest extends TestCase
 		Assert::equal($nextHoliday, $util->nextHoliday($date)->date);
 	}
 
-
 	public function testAddWorkdays(): void
 	{
-		$util = new Workdays(new h4kuna\Workdays\HolidaysProvider\Cze());
+		$util = new Workdays(new Cze());
 		$date = new DateTime('2015-12-23');
 		$date = $util->moveWorkdays($date, 1);
 		Assert::equal(new DateTime('2015-12-28'), $date);
@@ -120,41 +135,38 @@ final class WorkdaysTest extends TestCase
 		Assert::equal(new DateTime('2016-01-11'), $date);
 	}
 
-
 	public function testChooseCorrectProvider(): void
 	{
-		$util = new Workdays(new h4kuna\Workdays\HolidaysProvider\Svk());
+		$util = new Workdays(new Svk());
 		$date = new DateTime('2016-09-28');
 		Assert::false($util->isHoliday($date));
 		Assert::true($util->isWorkday($date));
 	}
 
-
 	public function testEmptySourceThrowsException(): void
 	{
-		Assert::exception(function () {
-			$util = new Workdays(new h4kuna\Workdays\Tests\Fixtures\PoorCountryWithNoHolidays());
-			$util->nextHoliday(new DateTime());
-		}, h4kuna\Workdays\Exceptions\InvalidStateException::class, 'For year "2023" there are no holidays.');
+		Assert::exception(static function (): void {
+			$util = new Workdays(new PoorCountryWithNoHolidays());
+			$util->nextHoliday(new DateTime('2023-06-01'));
+		}, InvalidStateException::class, 'For year "2023" there are no holidays.');
 	}
-
 
 	public function testDoesNotUseYearVariableThrowsException(): void
 	{
-		Assert::exception(function () {
-			$util = new Workdays(new class extends h4kuna\Workdays\HolidaysProvider\BaseProvider {
+		Assert::exception(static function (): void {
+			$util = new Workdays(new class extends BaseProvider {
+
 				protected function holidaysInYear(int $year): array
 				{
 					return [
-						new h4kuna\Workdays\HolidaysProvider\Holiday(new DateTimeImmutable('2013-12-12'), 'Bad date'),
+						new Holiday(new DateTimeImmutable('2013-12-12'), 'Bad date'),
 					];
 				}
 
 			});
 			$util->nextHoliday(new DateTime());
-		}, h4kuna\Workdays\Exceptions\InvalidStateException::class, sprintf('You define bad year "2013-12-12" for require year "%s".', date('Y')));
+		}, InvalidStateException::class, sprintf('You define bad year "2013-12-12" for require year "%s".', date('Y')));
 	}
-
 
 	/**
 	 * @return array<mixed>
@@ -183,7 +195,6 @@ final class WorkdaysTest extends TestCase
 		return $data;
 	}
 
-
 	/**
 	 * @return array<mixed>
 	 */
@@ -203,7 +214,6 @@ final class WorkdaysTest extends TestCase
 		}
 		return $data;
 	}
-
 
 	/**
 	 * @return array<mixed>
@@ -241,7 +251,6 @@ final class WorkdaysTest extends TestCase
 		}
 		return $data;
 	}
-
 
 	/**
 	 * @return array<mixed>

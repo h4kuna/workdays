@@ -4,6 +4,8 @@
 [![Total Downloads](https://poser.pugx.org/h4kuna/workdays/downloads?format=flat)](https://packagist.org/packages/h4kuna/workdays)
 [![License](https://poser.pugx.org/h4kuna/workdays/license?format=flat)](https://packagist.org/packages/h4kuna/workdays)
 
+Part of the [h4kuna PHP libraries](https://github.com/h4kuna/library), see the overview of all packages.
+
 Usage
 -------------
 

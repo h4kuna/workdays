@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays\HolidaysProvider;
 
@@ -7,6 +7,7 @@ use h4kuna\DataType\Date\Easter;
 
 class Cze extends BaseProvider
 {
+
 	protected function holidaysInYear(int $year): array
 	{
 		$holidays = [];
@@ -28,4 +29,5 @@ class Cze extends BaseProvider
 
 		return $holidays;
 	}
+
 }

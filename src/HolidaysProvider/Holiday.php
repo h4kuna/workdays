@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays\HolidaysProvider;
 
@@ -10,7 +10,7 @@ class Holiday
 	public function __construct(
 		public /* readonly */ DateTimeInterface $date,
 		public /* readonly */ string $name,
-		public /* readonly */ bool $vacation = false
+		public /* readonly */ bool $vacation = false,
 	)
 	{
 	}

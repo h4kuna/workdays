@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays;
 
@@ -9,9 +9,11 @@ use DateTimeInterface;
 use h4kuna\DataType\Date\Convert;
 use h4kuna\Workdays\HolidaysProvider\BaseProvider;
 use h4kuna\Workdays\HolidaysProvider\Holiday;
+use function abs;
 
 class Workdays
 {
+
 	public function __construct(private /* readonly */ BaseProvider $holidayProvider)
 	{
 	}
@@ -62,7 +64,8 @@ class Workdays
 	public function moveWorkdays(
 		DateTime|DateTimeImmutable $date,
 		int $numberOfWorkdays,
-	): DateTime|DateTimeImmutable {
+	): DateTime|DateTimeImmutable
+	{
 		$interval = new DateInterval('P1D');
 		$copyDate = Convert::toMutable($date);
 

@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays\HolidaysProvider;
 
 use DateTimeInterface;
 use h4kuna\Workdays\Exceptions\InvalidStateException;
+use function sprintf;
+use function usort;
 
 abstract class BaseProvider
 {
@@ -22,12 +24,10 @@ abstract class BaseProvider
 		return $this->holidaysCache[$year][$day] ?? null;
 	}
 
-
 	/**
 	 * @return array<Holiday>
 	 */
 	abstract protected function holidaysInYear(int $year): array;
-
 
 	private function addToCache(int $year): void
 	{
@@ -52,17 +52,15 @@ abstract class BaseProvider
 		}
 	}
 
-
 	/**
 	 * @param array<Holiday> $holidays
 	 */
 	private static function sortHolidays(array &$holidays): void
 	{
-		usort($holidays, function (Holiday $first, Holiday $second) {
+		usort($holidays, static function (Holiday $first, Holiday $second) {
 			return $first->date <=> $second->date;
 		});
 	}
-
 
 	/**
 	 * @return array{year: int, day: string}

@@ -1,19 +1,21 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays\Tests\Fixtures;
 
 use DateTimeImmutable;
-use h4kuna\Workdays\HolidaysProvider;
+use h4kuna\Workdays\HolidaysProvider\BaseProvider;
+use h4kuna\Workdays\HolidaysProvider\Holiday;
 
-class PoorCountryWithFewHolidays extends HolidaysProvider\BaseProvider
+class PoorCountryWithFewHolidays extends BaseProvider
 {
 
 	protected function holidaysInYear(int $year): array
 	{
 		return [
-			new HolidaysProvider\Holiday(new DateTimeImmutable($year . '-12-24'), 'Christmas'),
-			new HolidaysProvider\Holiday(new DateTimeImmutable($year . '-12-23'), 'pre Christmas', true),
-			new HolidaysProvider\Holiday(new DateTimeImmutable($year . '-12-24'), 'Not save, because is vacation', true),
+			new Holiday(new DateTimeImmutable($year . '-12-24'), 'Christmas'),
+			new Holiday(new DateTimeImmutable($year . '-12-23'), 'pre Christmas', true),
+			new Holiday(new DateTimeImmutable($year . '-12-24'), 'Not save, because is vacation', true),
 		];
 	}
+
 }

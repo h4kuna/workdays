@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays;
 
@@ -11,9 +11,12 @@ use h4kuna\Workdays\HolidaysProvider\BaseProvider;
 final class Builder extends LazyBuilder
 {
 
-    public function addProvider(string $name, BaseProvider $provider): void
-    {
-        $this->add($name, new Workdays($provider));
-    }
+	public function addProvider(
+		string $name,
+		BaseProvider $provider,
+	): void
+	{
+		$this->add($name, new Workdays($provider));
+	}
 
 }

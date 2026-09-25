@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace h4kuna\Workdays\Tests\Unit\HolidaysProvider;
 
+use DateTime;
 use h4kuna\DataType\Iterators\PeriodDayFactory;
 use h4kuna\Workdays\HolidaysProvider\BaseProvider;
 use h4kuna\Workdays\HolidaysProvider\Cze;
@@ -27,13 +28,16 @@ class ProvidersTest extends TestCase
 		];
 	}
 
-
 	/**
 	 * @dataProvider provideSvk
 	 */
-	public function testSvk(int $year, int $count, BaseProvider $provider): void
+	public function testSvk(
+		int $year,
+		int $count,
+		BaseProvider $provider,
+	): void
 	{
-		$period = PeriodDayFactory::createInFromInTo(new \DateTime("$year-01-01"), new \DateTime("$year-12-31"));
+		$period = PeriodDayFactory::createInFromInTo(new DateTime("$year-01-01"), new DateTime("$year-12-31"));
 		$sum = [];
 		foreach ($period as $date) {
 			$holiday = $provider->get($date);
@@ -43,6 +47,7 @@ class ProvidersTest extends TestCase
 		}
 		Assert::count($count, $sum);
 	}
+
 }
 
 (new ProvidersTest())->run();
